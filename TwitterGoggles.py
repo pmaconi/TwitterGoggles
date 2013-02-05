@@ -1,6 +1,8 @@
-import argparse, configparser, json, math, mysql.connector as sql, requests, sys, time
+import argparse, configparser, math, mysql.connector as sql, requests, sys, time
 from datetime import datetime
 from mysql.connector import errorcode
+from requests import HTTPError
+from requests import ConnectionError
 from requests_oauthlib import OAuth1
 
 def connect() :
@@ -19,19 +21,40 @@ def connect() :
 
 	return sql.connect(**db_params)
 
-def search(query) :
-	r = requests.get("https://api.twitter.com/1.1/search/tweets.json?q=" + query, auth=getOAuth())
-	print(r.text)
+def getJobs(conn) :
+	cursor = conn.cursor() 
 
-def getOAuth() : 
-	config = configparser.ConfigParser()
-	config.read("config/settings.cfg")
+	query = ("SELECT job_id, zombie_head, state, query, since_id_str, description, \
+				consumer_key, consumer_secret, access_token, access_token_secret \
+			FROM job, oauth \
+			WHERE job.oauth_id = oauth.oauth_id AND zombie_head = %s \
+			ORDER BY job_id")
 
-	consumer_key = config["OAuth"]["consumer_key"]
-	consumer_secret = config["OAuth"]["consumer_secret"]
-	access_token = config["OAuth"]["access_token"]
-	access_token_secret = config["OAuth"]["access_token_secret"]
+	cursor.execute(query,[args.head])
+	return cursor
+	
 
+def search(query, since_id, oauth) :
+	full_query = "&".join([query,"since_id=" + since_id, "rpp=100", "include_entities"])
+	verbose("Query: " + full_query)
+
+	attempt = 1
+	while attempt <= 3 :
+		try :
+			r = requests.get("https://api.twitter.com/1.1/search/tweets.json?" + full_query, auth=oauth)
+			return r.json
+			
+		except (ConnectionError, HTTPError) as err :
+			sleep_time = 2**(attempt - 1)
+			verbose("Connection attempt " + str(attempt) + " failed. "
+				"Sleeping for " + str(sleep_time) + " second(s).")
+			time.sleep(sleep_time)
+			attempt = attempt + 1
+
+	print("***** Error: Unable to query Twitter. Terminating.")
+	sys.exit(1)
+
+def getOAuth(consumer_key, consumer_secret, access_token, access_token_secret) : 
 	oauth = OAuth1(client_key=consumer_key,
 				client_secret=consumer_secret,
 				resource_owner_key=access_token,
@@ -54,7 +77,7 @@ if __name__ == '__main__' :
 	args = parser.parse_args()
 
 	# Display startup info
-	print("vvvvv Start:", datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "vvvvv")
+	print("vvvvv Start:", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 	verbose("Verbose Mode: Enabled")
 	print("Head:", args.head)
 	print("Delay:", args.delay)
@@ -70,6 +93,24 @@ if __name__ == '__main__' :
 	try :
 		conn = connect()
 		print("Connected")
+
+		# Get all of the jobs for this head
+		jobs = getJobs(conn)
+
+		# Iterate over all of the jobs found
+		for (job_id, zombie_head, state, query, since_id_str, description, 
+				consumer_key, consumer_secret, access_token, access_token_secret) in jobs :
+			
+			# Throttle the job frequency
+			#if (epoch_min % state != 0) :
+			#	verbose("Throttled frequency for job: " + job_id)
+			#	continue
+			
+			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query)
+
+			oauth = getOAuth(consumer_key, consumer_secret, access_token, access_token_secret)
+			
+			search(query, since_id_str.decode('utf8'), oauth)
 		#search("test")
 	except sql.Error as err :
 			print(err)
@@ -77,4 +118,5 @@ if __name__ == '__main__' :
 			sys.exit(1)
 	else :
 		conn.close()
-	print("^^^^^ Stop:", datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "^^^^^")
+	finally :
+		print("^^^^^ Stop:", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
