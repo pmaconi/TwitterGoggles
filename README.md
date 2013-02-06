@@ -4,7 +4,7 @@ A Python 3 adaptation of the PHP program "Twitter Zombie", originally developed 
 
 Dependencies
 ------------
-- requets
+- requests
 - requests-oauthlib
 - mysql-connector-python
 
