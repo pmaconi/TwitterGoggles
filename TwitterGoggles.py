@@ -284,6 +284,7 @@ if __name__ == '__main__' :
 
 			# Search results are returned in a most-recent first order, so we only need the inital max
 			max_id_str =  results["search_metadata"]["max_id_str"]
+			verbose("Max ID: " + str(max_id_str))
 			total_results = 0
 			while tweets :
 				total_results = total_results + 1
