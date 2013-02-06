@@ -222,7 +222,7 @@ if __name__ == '__main__' :
 	parser = argparse.ArgumentParser(description="A Python adaptation of the PHP program \
 				\"Twitter Zombie\", originally developed for the Twitter Search API version \
 				1.0. This new project is built for the Twitter Search API version 1.1.")
-	parser.add_argument('head', type=int, help="Specify the head")
+	parser.add_argument('head', type=int, help="Specify the head #")
 	parser.add_argument('-v','--verbose', default=False, action="store_true", help="Show additional logs")
 	parser.add_argument('-d','--delay', type=int, default=0, help="Delay execution by DELAY seconds")
 	args = parser.parse_args()
@@ -256,7 +256,7 @@ if __name__ == '__main__' :
 			# Throttle the job frequency
 			if (epoch_min % state != 0) :
 				verbose("Throttled frequency for job: " + str(job_id))
-				#continue
+				continue
 			
 			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query)
 

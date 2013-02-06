@@ -7,3 +7,16 @@ Dependencies
 - requets
 - requests-oauthlib
 - mysql-connector-python
+
+Usage
+-----
+usage: TwitterGoggles.py [-h] [-v] [-d DELAY] head
+
+positional arguments:
+  head                  Specify the head #
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Show additional logs
+  -d DELAY, --delay DELAY
+                        Delay execution by DELAY seconds
