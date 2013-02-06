@@ -109,6 +109,7 @@ CREATE TABLE `job_archive` (
   `last_count` int(10) unsigned zerofill DEFAULT NULL,
   `last_run` datetime DEFAULT NULL,
   `analysis_state` int(11) DEFAULT NULL,
+  `oauth_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
@@ -126,6 +127,7 @@ CREATE TABLE `job_stage` (
   `last_count` int(10) unsigned zerofill DEFAULT NULL,
   `last_run` datetime DEFAULT NULL,
   `analysis_state` int(11) DEFAULT NULL,
+  `oauth_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
@@ -200,7 +202,7 @@ CREATE TABLE `tweet` (
   `location_geo` point DEFAULT NULL,
   `location_geo_0` decimal(14,10) DEFAULT NULL,
   `location_geo_1` decimal(14,10) DEFAULT NULL,
-  `iso_language` varchar(2) NOT NULL,
+  `iso_language` varchar(3) NOT NULL,
   `analysis_state` int(10) DEFAULT '0',
   PRIMARY KEY (`tweet_id_str`,`job_id`),
   KEY `archive` (`analysis_state`)
@@ -225,7 +227,7 @@ CREATE TABLE `tweet_archive` (
   `location_geo` point DEFAULT NULL,
   `location_geo_0` decimal(14,10) DEFAULT NULL,
   `location_geo_1` decimal(14,10) DEFAULT NULL,
-  `iso_language` varchar(2) NOT NULL,
+  `iso_language` varchar(3) NOT NULL,
   `analysis_state` int(10) DEFAULT '0',
   PRIMARY KEY (`tweet_id_str`,`job_id`),
   KEY `archive` (`analysis_state`)
@@ -250,7 +252,7 @@ CREATE TABLE `tweet_stage` (
   `location_geo` point DEFAULT NULL,
   `location_geo_0` decimal(14,10) DEFAULT NULL,
   `location_geo_1` decimal(14,10) DEFAULT NULL,
-  `iso_language` varchar(2) NOT NULL,
+  `iso_language` varchar(3) NOT NULL,
   `analysis_state` int(10) DEFAULT '0',
   PRIMARY KEY (`tweet_id_str`,`job_id`),
   KEY `archive` (`analysis_state`)

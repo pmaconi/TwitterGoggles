@@ -5,12 +5,13 @@ from requests import HTTPError
 from requests import ConnectionError
 from requests_oauthlib import OAuth1
 
+# Print strings in verbose mode
 def verbose(info) :
 	if args.verbose:
 		print(info)
 
+# Connect to MySQL using config entries
 def connect() :
-	# Connect to MySQL using config entries
 	config = configparser.ConfigParser()
 	config.read("config/settings.cfg")
 
@@ -25,6 +26,7 @@ def connect() :
 
 	return sql.connect(**db_params)
 
+# Get all jobs from the database
 def getJobs(conn) :
 	cursor = conn.cursor() 
 
@@ -37,14 +39,18 @@ def getJobs(conn) :
 	cursor.execute(query,[args.head])
 	return cursor
 
-def search(query, since_id, oauth) :
-	full_query = "&".join([query,"since_id=" + since_id, "rpp=100", "include_entities=1"])
-	verbose("Query: " + full_query)
+# Append default values to the job's query string
+def getFullQuery(query, since_id) :
+	return "?" + query + "&since_id=" + since_id + "&count=100&include_entities=1"
+
+# Query Twitter's Search 1.1 API
+def search(query, oauth) :
+	verbose("Query: " + query)
 
 	attempt = 1
 	while attempt <= 3 :
 		try :
-			r = requests.get("https://api.twitter.com/1.1/search/tweets.json?" + full_query, auth=oauth)
+			r = requests.get("https://api.twitter.com/1.1/search/tweets.json" + query, auth=oauth)
 			return json.loads(r.text)
 
 		except (ConnectionError, HTTPError) as err :
@@ -57,6 +63,7 @@ def search(query, since_id, oauth) :
 	print("***** Error: Unable to query Twitter. Terminating.")
 	sys.exit(1)
 
+# Add a tweet to the DB
 def addTweet(conn, job_id, tweet) :
 	cursor = conn.cursor()
 
@@ -78,11 +85,13 @@ def addTweet(conn, job_id, tweet) :
 		tweet["metadata"]["iso_language_code"]
 	]
 
+	# Optionally include the geo data
 	if tweet['geo'] is not None and tweet['geo']['type'] == "Point" :		
 		prefix = prefix + ", location_geo, location_geo_0, location_geo_1"
-		suffix = suffix + ", %s, %s, %s"
+		suffix = suffix + ", Point(%s,%s), %s, %s"
 		values.extend([
-			"point(" + tweet["geo"]["coordinates"][0] + "," + tweet["geo"]["coordinates"][1] + ")",
+			tweet["geo"]["coordinates"][0],
+			tweet["geo"]["coordinates"][1],
 			tweet["geo"]["coordinates"][0],
 			tweet["geo"]["coordinates"][1]
 		])
@@ -96,12 +105,118 @@ def addTweet(conn, job_id, tweet) :
 		return True
 	except sql.Error as err :
 		verbose(">>>> Warning: Could not add Tweet: " + str(err))
-		# Convert unprintable utf8 string to ascii bytes and decode to string
+		# Convert unprintable utf8 strings to ascii bytes and decode back to a string
 		verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
 		return False
 	finally :
 		cursor.close()
 
+# Add hashtag entities to the DB
+def addHashtags(conn, job_id, tweet) :
+	cursor = conn.cursor()
+
+	query = "INSERT INTO hashtag (tweet_id, job_id, text, index_start, index_end) " \
+		"VALUES(%s, %s, %s, %s, %s)"
+
+	for hashtag in tweet['entities']['hashtags'] :
+		values = [
+			tweet["id_str"], 
+			job_id, 
+			hashtag["text"], 
+			hashtag["indices"][0],
+			hashtag["indices"][1] 
+		]
+
+		try :
+			cursor.execute(query, values)
+			conn.commit()
+		except sql.Error as err :
+			verbose(">>>> Warning: Could not add Hashtag: " + str(err))
+			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
+			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+	
+	cursor.close()
+
+# Add user mention entities to the DB
+def addUserMentions(conn, job_id, tweet) :
+	cursor = conn.cursor()
+
+	query = "INSERT INTO mention (tweet_id, job_id, screen_name, name, id_str, index_start, index_end) " \
+		"VALUES(%s, %s, %s, %s, %s, %s, %s)"
+
+	for mention in tweet['entities']['user_mentions'] :
+		values = [
+			tweet["id_str"], 
+			job_id, 
+			mention["screen_name"], 
+			mention["name"], 
+			mention["id_str"], 
+			mention["indices"][0],
+			mention["indices"][1] 
+		]
+
+		try :
+			cursor.execute(query, values)
+			conn.commit()
+		except sql.Error as err :
+			verbose(">>>> Warning: Could not add User Mention: " + str(err))
+			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
+			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+	
+	cursor.close
+
+# Add all URL entities to the DB
+def addURLS(conn, job_id, tweet) :
+	cursor = conn.cursor()
+
+	query = "INSERT INTO url (tweet_id, job_id, url, expanded_url, display_url, index_start, index_end) " \
+		"VALUES(%s, %s, %s, %s, %s, %s, %s)"
+
+	for url in tweet['entities']['urls'] :
+		values = [
+			tweet["id_str"], 
+			job_id, 
+			url["url"], 
+			url["expanded_url"] if "expanded_url" in url else "", 
+			url["display_url"] if "display_url" in url else "", 
+			url["indices"][0],
+			url["indices"][1] 
+		]
+
+		try :
+			cursor.execute(query, values)
+			conn.commit()
+		except sql.Error as err :
+			verbose(">>>> Warning: Could not add URL: " + str(err))
+			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
+			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+	
+	cursor.close()
+
+# Update the stored job's since_id to prevent retrieving previously processed tweets
+def updateSinceId(conn, job_id, max_id_str, total_results) :
+	cursor = conn.cursor()
+
+	query = "UPDATE job SET since_id_str=%s, last_count=%s, last_run=%s WHERE job_id=%s"
+
+	values = [
+		max_id_str,
+		total_results,
+		datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+		job_id
+	]
+
+	try :
+		cursor.execute(query, values)
+		conn.commit()
+	except sql.Error as err :
+		verbose(">>>> Warning: Could not update job: " + str(err))
+		# Convert unprintable utf8 strings to ascii bytes and decode back to a string
+		verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+	finally:
+		cursor.close()
+
+# Main function
 if __name__ == '__main__' :
 	# Handle command line arguments
 	parser = argparse.ArgumentParser(description="A Python adaptation of the PHP program \
@@ -134,13 +249,14 @@ if __name__ == '__main__' :
 		jobs = getJobs(conn)
 
 		# Iterate over all of the jobs found
+		run_total_count = 0
 		for (job_id, zombie_head, state, query, since_id_str, description, 
 				consumer_key, consumer_secret, access_token, access_token_secret) in jobs :
 			
 			# Throttle the job frequency
-			#if (epoch_min % state != 0) :
-			#	verbose("Throttled frequency for job: " + job_id)
-			#	continue
+			if (epoch_min % state != 0) :
+				verbose("Throttled frequency for job: " + str(job_id))
+				#continue
 			
 			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query)
 
@@ -149,22 +265,64 @@ if __name__ == '__main__' :
 						resource_owner_key=access_token,
 						resource_owner_secret=access_token_secret)
 			
-			# Get the Tweets
-			results = search(query, since_id_str.decode('utf8'), oauth)
+			since_id_str = since_id_str.decode('utf8')
 
-			total_results = results["search_metadata"]["count"]
-			max_id = results["search_metadata"]["max_id"]
-			verbose("Max ID: " + str(max_id))
+			# Get the Tweets
+			results = search(getFullQuery(query, since_id_str), oauth)
+
+			# Make sure that we didn't receive an error instead of an actual result
+			if "errors" in results :
+				for error in results["errors"] :
+					verbose("      Error response received: " + error["message"])
+
+				print("***** Error: Unable to query Twitter. Ending job.")
+				continue
 
 			tweets = collections.deque()
+
 			tweets.extend(results["statuses"])
 
+			# Search results are returned in a most-recent first order, so we only need the inital max
+			max_id_str =  results["search_metadata"]["max_id_str"]
+			total_results = 0
 			while tweets :
+				total_results = total_results + 1
 				tweet = tweets.popleft()
 
+				# Insert the tweet in the DB
 				success = addTweet(conn, job_id, tweet)
 
+				# Insert the tweet entities in the DB
+				if success :
+					addHashtags(conn, job_id, tweet)
+					addUserMentions(conn, job_id, tweet)
+					addURLS(conn, job_id, tweet)
 
+				# If we have no more tweets to process, but Twitter says there are more to get
+				if not tweets and "next_results" in results["search_metadata"] :
+					next_results = results["search_metadata"]["next_results"]
+					query = next_results + "&since_id=" + since_id_str + "&count=100"
+					results = search(query, oauth)
+
+					# Make sure that we didn't receive an error instead of an actual result
+					if "errors" in results :
+						for error in results["errors"] :
+							verbose("      Error response received:" + error["message"])
+
+						print("***** Error: Unable to query Twitter. Ending job.")
+
+						# End this job early, since we've probably hit rate limits
+						break
+
+					# Add the newly retrieved tweets to the processing queue
+					tweets.extend(results["statuses"])
+
+			print("Total Results:", total_results)
+			run_total_count = run_total_count + total_results
+
+			# Update the since_id to use for future tweets
+			updateSinceId(conn, job_id, max_id_str, total_results)
+					
 	except sql.Error as err :
 		print(err)
 		print("Terminating.")
@@ -172,4 +330,5 @@ if __name__ == '__main__' :
 	else :
 		conn.close()
 	finally :
+		print("$$$$$ Run total count: " + str(run_total_count))
 		print("^^^^^ Stop:", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
