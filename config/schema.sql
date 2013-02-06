@@ -128,7 +128,7 @@ CREATE TABLE `url` (
   `url_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `tweet_id` varchar(20) NOT NULL,
   `url` varchar(255) NOT NULL,
-  `expanded_url` varchar(255) NOT NULL,
+  `expanded_url` varchar(400) NOT NULL,
   `display_url` varchar(255) NOT NULL,
   `index_start` tinyint(3) unsigned NOT NULL,
   `index_end` tinyint(3) unsigned NOT NULL,
