@@ -26,14 +26,8 @@ Installation
 Install Python 3 on the computer you use.  Recognize that many standard installations of Python are currently 2.x, and you may need to install python 3 as well.  To execute with Python3, you type "python3"
 
 Download the dependencies listed above and unzip them:
-   requests - http://pypi.python.org/pypi/requests
-   python3 setup.py install 
-
-   requests-oauthlib - http://pypi.python.org/pypi/requests-oauthlib/ or https://github.com/requests/requests-oauthlib
-   python3 setup.py install
-
-   mysql-connector-python - http://pypi.python.org/pypi/mysql-connector-python/
-   python3 setup.py install
+   Make sure you have "pip" installed on your system (this is a package manager for Python3)
+   from a command prompt, type:  pip install requests requests-oauthlib mysql-connector-python
 
 
 
