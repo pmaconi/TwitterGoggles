@@ -35,7 +35,7 @@ def getJobs(conn) :
 	query = ("SELECT job_id, zombie_head, state, query, since_id_str, description, \
 				consumer_key, consumer_secret, access_token, access_token_secret \
 			FROM job, oauth \
-			WHERE job.oauth_id = oauth.oauth_id AND zombie_head = %s \
+			WHERE job.state > 0 AND job.oauth_id = oauth.oauth_id AND zombie_head = %s \
 			ORDER BY job_id")
 
 	cursor.execute(query,[args.head])
@@ -288,12 +288,20 @@ if __name__ == '__main__' :
 			max_id_str =  results["search_metadata"]["max_id_str"]
 			verbose("Max ID: " + str(max_id_str))
 			total_results = 0
+
+			count = 1
+			total = len(tweets)
 			while tweets :
 				total_results = total_results + 1
 				tweet = tweets.popleft()
 
 				# Insert the tweet in the DB
 				success = addTweet(conn, job_id, tweet)
+
+				# Show status logging
+				if args.verbose :
+					sys.stdout.write("\rProgress: " + str(count) + "/" + str(total))
+				count = count + 1
 
 				# Insert the tweet entities in the DB
 				if success :
@@ -305,6 +313,8 @@ if __name__ == '__main__' :
 				if not tweets and "next_results" in results["search_metadata"] :
 					next_results = results["search_metadata"]["next_results"]
 					query = next_results + "&since_id=" + since_id_str + "&count=100"
+					
+					verbose("\nFetching more results...")
 					results = search(query, oauth)
 
 					# Make sure that we didn't receive an error instead of an actual result
@@ -320,6 +330,11 @@ if __name__ == '__main__' :
 					# Add the newly retrieved tweets to the processing queue
 					tweets.extend(results["statuses"])
 
+					# Update logging
+					total = len(tweets)
+					count = 1
+
+			verbose("")
 			print("Total Results:", total_results)
 			run_total_count = run_total_count + total_results
 
