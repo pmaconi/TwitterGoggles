@@ -34,6 +34,7 @@ def getJobs(conn) :
 				consumer_key, consumer_secret, access_token, access_token_secret \
 			FROM job, oauth \
 			WHERE job.oauth_id = oauth.oauth_id AND zombie_head = %s \
+			AND state != 0 \
 			ORDER BY job_id")
 
 	cursor.execute(query,[args.head])
