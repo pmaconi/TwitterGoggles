@@ -21,7 +21,9 @@ def connect() :
 		'host' : config["MySQL"]["host"],
 		'port' : int(config["MySQL"]["port"]),
 		'database' : config["MySQL"]['database'],
-		'charset' : 'utf8'
+		'charset' : 'utf8',
+		'collation' : 'utf8_general_ci',
+		'buffered' : True
 	}
 
 	return sql.connect(**db_params)
@@ -242,6 +244,7 @@ if __name__ == '__main__' :
 	print("Connecting to database...")
 
 	try :
+		run_total_count = 0
 		conn = connect()
 		print("Connected")
 
@@ -249,7 +252,6 @@ if __name__ == '__main__' :
 		jobs = getJobs(conn)
 
 		# Iterate over all of the jobs found
-		run_total_count = 0
 		for (job_id, zombie_head, state, query, since_id_str, description, 
 				consumer_key, consumer_secret, access_token, access_token_secret) in jobs :
 			
