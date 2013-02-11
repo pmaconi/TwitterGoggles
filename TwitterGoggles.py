@@ -106,6 +106,7 @@ def addTweet(conn, job_id, tweet) :
 		conn.commit()
 		return True
 	except sql.Error as err :
+		verbose("")
 		verbose(">>>> Warning: Could not add Tweet: " + str(err))
 		# Convert unprintable utf8 strings to ascii bytes and decode back to a string
 		verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
@@ -133,6 +134,7 @@ def addHashtags(conn, job_id, tweet) :
 			cursor.execute(query, values)
 			conn.commit()
 		except sql.Error as err :
+			verbose("")
 			verbose(">>>> Warning: Could not add Hashtag: " + str(err))
 			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
 			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
@@ -161,6 +163,7 @@ def addUserMentions(conn, job_id, tweet) :
 			cursor.execute(query, values)
 			conn.commit()
 		except sql.Error as err :
+			verbpse("")
 			verbose(">>>> Warning: Could not add User Mention: " + str(err))
 			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
 			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
@@ -189,6 +192,7 @@ def addURLS(conn, job_id, tweet) :
 			cursor.execute(query, values)
 			conn.commit()
 		except sql.Error as err :
+			verbose("")
 			verbose(">>>> Warning: Could not add URL: " + str(err))
 			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
 			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
