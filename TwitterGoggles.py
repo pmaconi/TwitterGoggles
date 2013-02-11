@@ -221,7 +221,7 @@ def updateSinceId(conn, job_id, max_id_str, total_results) :
 # Main function
 if __name__ == '__main__' :
 	# Handle command line arguments
-	parser = argparse.ArgumentParser(description="A Python adaptation of the PHP program \
+	parser = argparse.ArgumentParser(description="A Python 3.3 adaptation of the PHP program \
 				\"Twitter Zombie\", originally developed for the Twitter Search API version \
 				1.0. This new project is built for the Twitter Search API version 1.1.")
 	parser.add_argument('head', type=int, help="Specify the head #")
