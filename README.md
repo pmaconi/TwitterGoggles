@@ -38,10 +38,10 @@ optional arguments:
 Unix Cron Example
 -----------------
 ```
-*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py  -d2 1 >> ~/log/zombielog-head-1-1.txt
-*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py  -d17 2 >> ~/log/zombie-head-2-1.txt
-*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py  -d33 3 >> ~/log/zombielog-head-3-1.txt
-*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py  -d47 4 >> ~/log/zombielog-head-4-1.txt
+*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py -v -d 2 1 >> ~/log/zombielog-head-1-1.txt
+*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py -v -d 17 2 >> ~/log/zombie-head-2-1.txt
+*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py -v -d 33 3 >> ~/log/zombielog-head-3-1.txt
+*/1 * * * * /usr/local/bin/python3 /home/TwitterGoggles.py -v -d 47 4 >> ~/log/zombielog-head-4-1.txt
 ```
 
 
