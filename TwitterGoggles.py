@@ -33,7 +33,7 @@ def getJobs(conn) :
 	cursor = conn.cursor() 
 
 	query = ("SELECT job_id, zombie_head, state, query, since_id_str, description, \
-				consumer_key, consumer_secret, access_token, access_token_secret \
+				oauth.oauth_id, consumer_key, consumer_secret, access_token, access_token_secret \
 			FROM job, oauth \
 			WHERE job.state > 0 AND job.oauth_id = oauth.oauth_id AND zombie_head = %s \
 			ORDER BY job_id")
@@ -222,6 +222,31 @@ def updateSinceId(conn, job_id, max_id_str, total_results) :
 	finally:
 		cursor.close()
 
+# Add an entry into the job history table
+def addHistory(conn, job_id, oauth_id, success, total_results = 0) :
+	cursor = conn.cursor()
+
+	query = "INSERT INTO history (job_id, oauth_id, timestamp, status, total_results) " \
+		"VALUES(%s, %s, %s, %s, %s)"
+
+	values = [
+		job_id,
+		oauth_id,
+		datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+		"success" if success else "failure",
+		total_results
+	]
+
+	try :
+		cursor.execute(query, values)
+		conn.commit()
+	except sql.Error as err :
+		verbose(">>>> Warning: Could not add history entry: " + str(err))
+		# Convert unprintable utf8 strings to ascii bytes and decode back to a string
+		verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+	finally:
+		cursor.close()
+
 # Main function
 if __name__ == '__main__' :
 	# Handle command line arguments
@@ -256,15 +281,15 @@ if __name__ == '__main__' :
 		jobs = getJobs(conn)
 
 		# Iterate over all of the jobs found
-		for (job_id, zombie_head, state, query, since_id_str, description, 
+		for (job_id, zombie_head, state, query, since_id_str, description, oauth_id, 
 				consumer_key, consumer_secret, access_token, access_token_secret) in jobs :
 			
 			# Throttle the job frequency
 			if (epoch_min % state != 0) :
 				verbose("Throttled frequency for job: " + str(job_id))
-				continue
+				#continue
 			
-			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query)
+			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query, "\tOauth ID:", oauth_id)
 
 			oauth = OAuth1(client_key=consumer_key,
 						client_secret=consumer_secret,
@@ -282,6 +307,7 @@ if __name__ == '__main__' :
 					verbose("      Error response received: " + error["message"])
 
 				print("***** Error: Unable to query Twitter. Ending job.")
+				addHistory(conn, job_id, oauth_id, False)
 				continue
 
 			tweets = collections.deque()
@@ -344,6 +370,7 @@ if __name__ == '__main__' :
 
 			# Update the since_id to use for future tweets
 			updateSinceId(conn, job_id, max_id_str, total_results)
+			addHistory(conn, job_id, oauth_id, True, total_results)
 					
 	except sql.Error as err :
 		print(err)

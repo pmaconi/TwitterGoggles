@@ -109,8 +109,6 @@ CREATE TABLE `tweet` (
   KEY `archive` (`analysis_state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
-
-
 -- ----------------------------
 --  Table structure for `update_status`
 -- ----------------------------
@@ -136,6 +134,20 @@ CREATE TABLE `url` (
   `analysis_state` int(10) DEFAULT '0',
   PRIMARY KEY (`url_id`),
   KEY `analysis_state` (`analysis_state`)
+) ENGINE=InnoDB AUTO_INCREMENT=39936178 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+
+-- ----------------------------
+--  Table structure for `history`
+-- ----------------------------
+DROP TABLE IF EXISTS `history`;
+CREATE TABLE `history` (
+  `history_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `job_id` int(10) unsigned NOT NULL,
+  `oauth_id` int(10) unsigned NOT NULL,
+  `timestamp` datetime NOT NULL,
+  `status` varchar(7) NOT NULL,
+  `total_results` int(10) unsigned zerofill DEFAULT NULL,
+  PRIMARY KEY (`history_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=39936178 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 -- ----------------------------
