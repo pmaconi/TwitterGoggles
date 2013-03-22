@@ -287,7 +287,7 @@ if __name__ == '__main__' :
 			# Throttle the job frequency
 			if (epoch_min % state != 0) :
 				verbose("Throttled frequency for job: " + str(job_id))
-				#continue
+				continue
 			
 			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query, "\tOauth ID:", oauth_id)
 
