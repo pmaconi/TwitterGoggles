@@ -289,7 +289,7 @@ if __name__ == '__main__' :
 				verbose("Throttled frequency for job: " + str(job_id))
 				continue
 			
-			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query, "\tOauth ID:", oauth_id)
+			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query, "\tOAuth ID:", oauth_id)
 
 			oauth = OAuth1(client_key=consumer_key,
 						client_secret=consumer_secret,
