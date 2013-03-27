@@ -5,20 +5,30 @@ version 1.0. This new project is built for the Twitter Search API version 1.1.
 
 Dependencies
 ------------
+- configparser
+- mysql-connector-python
 - requests
 - requests-oauthlib
-- mysql-connector-python
 
-Installation
-------------
+Setup and Installation
+----------------------
 1. Install Python 3.3 on the computer you use.  Recognize that many standard installations of Python are
    currently 2.x, and you may need to install Python 3.3 as well.  To execute with Python3, you type "python3"
 2. Install the dependencies:
     1. Make sure you have "pip" installed on your system (this is a package manager for Python3)
     2. From a command prompt, type:
 ```
-pip install requests requests-oauthlib mysql-connector-python
+pip install configparser mysql-connector-python requests requests-oauthlib
 ```
+3. Build database
+	1. Create empty database
+	2. Create new user for db or grant access to an existing user
+	3. Run config/schema.sql
+
+4. Set database config options in config/settings.cfg
+5. Add your job(s) to the database
+	1. 'query' means the "q=params" part of a Twitter Search Query (see https://dev.twitter.com/docs/using-search)
+	2. give your job a number so you can call it as the "head #" 
    
 Usage
 -----
