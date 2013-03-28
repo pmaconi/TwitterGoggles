@@ -13,31 +13,50 @@ Setup and Installation
 ----------------------
 1. Install Python 3.3 on the computer you use.  Recognize that many standard installations of Python are
    currently 2.x, and you may need to install Python 3.3 as well.  To execute with Python3, you type "python3"
-2. Install the dependencies:
+2. Install the dependencies
     1. Make sure you have "pip" installed on your system (this is a package manager for Python3)
     2. From a command prompt, type:
 ```
 pip install mysql-connector-python requests requests-oauthlib
 ```
 3. Build database
-    1. Create empty database
-    2. Create new user for db or grant access to an existing user
-    3. Run config/schema.sql
+   1. Create empty database
+	2. Create new user for db or grant access to an existing user
+	3. Run config/schema.sql
 4. Set database config options in config/settings.cfg
-5. Add your job(s) to the database
-    1. 'query' means the "?q=params" part of a Twitter Search Query (see https://dev.twitter.com/docs/using-search)
-    2. give your job a number so you can call it as the "head #" 
-   
+5. Add your OAuth credentials to the oauth table
+	1. Get OAuth credentials by setting up an Application at Twitter's Developers site (https://dev.twitter.com/)
+	2. EXAMPLE: 
+<blockquote>
+INSERT INTO \`oauth\` (\`oauth_id\`, \`name\`, \`consumer_key\`, \`consumer_secret\`, \`access_token\`, \`access_token_secret\`) VALUES (1, 'a name you can remember', 'consumer_key', 'consumer_secret', 'access_token', 'access_token_secret');
+</blockquote>
+5. Add your job(s) to the job table
+	* job_id: an INT you can choose
+	* state: an indication of how frequently the collection will occur, in minutes; must be 1 or greater to run at all
+	* zombie_head: an INT, you'll use this to identify the head when you call TwitterGoggles
+	* since_id_str: can be blank for new jobs
+	* query: the "q=params" part of a Twitter Search Query (see https://dev.twitter.com/docs/using-search)
+	* description: a note to yourself about what this job does, will print in verbose mode 
+	* last_count: NULL for new jobs
+	* last_run: NULL for new jobs
+	* analysis_state: 0 for new jobs
+	* oauth_id: set to match the ID of the oauth credentials you just added 
+   * EXAMPLE: 
+<blockquote>
+INSERT INTO \`job\` (\`job_id\`, \`state\`, \`zombie_head\`, \`since_id_str\`, \`query\`, \`description\`, \`last_count\`, \`last_run\`, \`analysis_state\`, \`oauth_id\`) VALUES (3, 1, 2, X'30', 
+'q=from%3Alibbyh%20OR%20from%3Asgoggins', 'Libby\'s example job', NULL, NULL, 0, 1);
+</blockquote>
+
 Usage
 -----
 ```
 usage: TwitterGoggles.py [-h] [-v] [-d DELAY] head
 
 positional arguments:
-  head                  Specify the head #
+  head                  Specify the head # (zombie_head in the job table)
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help            Show this help message and exit
   -v, --verbose         Show additional logs
   -d DELAY, --delay DELAY
                         Delay execution by DELAY seconds
