@@ -1,4 +1,4 @@
-import argparse, collections, configparser, json, math, mysql.connector as sql, requests, sys, time
+import argparse, collections, configparser, json, math, mysql.connector as sql, os, requests, sys, time
 from datetime import datetime
 from mysql.connector import errorcode
 from requests import HTTPError
@@ -13,7 +13,9 @@ def verbose(info) :
 # Connect to MySQL using config entries
 def connect() :
 	config = configparser.ConfigParser()
-	config.read("config/settings.cfg")
+	script_dir = os.path.dirname(__file__)
+	config_file = os.path.join(script_dir, 'config/settings.cfg')
+	config.read(config_file)
 
 	db_params = {
 		'user' : config["MySQL"]["user"],
