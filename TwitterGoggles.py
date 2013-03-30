@@ -282,6 +282,11 @@ if __name__ == '__main__' :
 		# Get all of the jobs for this head
 		jobs = getJobs(conn)
 
+		if not jobs.rowcount :
+			print("\nUnable to find any jobs to run. Please make sure there are entries in the 'job'"
+				+ " table that have an oauth_id corresponding to an entry in the 'oauth', the 'zombie_head'"
+				+ " value matches {}, and the 'state' value is not 0.\n".format(args.head))
+
 		# Iterate over all of the jobs found
 		for (job_id, zombie_head, state, query, since_id_str, description, oauth_id, 
 				consumer_key, consumer_secret, access_token, access_token_secret) in jobs :
