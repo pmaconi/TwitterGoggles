@@ -1,0 +1,48 @@
+From:  http://libbyh.com/2013/05/13/setting-up-an-ec2-instance-for-twittergoggles/
+
+Setting up an EC2 instance for TwitterGoggles by libbyh • May 13, 2013 • Code, Research • 0 Comments
+TwitterGoggles requires Python 3.3. I’m new to Python, and 3.3 is (relatively) new to everyone. So, getting help is both necessary and challenging. I want to run TwitterGoggles on Amazon EC2 instances, so I’m setting up an AMI that has all of the requirements:
+
+gcc 4.6.3
+git 1.8.1.4
+mlocate 0.22.2
+MySQL 5.5
+Python 3.3
+I started with an Amazon Linux AMI and installed the stuff I needed. You can save yourself some trouble by launching an instance with my AMI: ami-e73b558e. (I’ll add a link as soon as Amazon approves it)
+
+Install Dependencies
+Update the system
+sudo yum update
+Install C compiler so we can install Python
+sudo yum install gcc
+Install software yum can take care of for us
+sudo yum groupinstall "Development tools"
+sudo yum install -y mysql git mlocate
+Update the DB locate uses to find your stuff
+sudo updatedb
+Install Python 3.3.1
+Here’s the best guide: http://www.unixmen.com/howto-install-python-3-x-in-ubuntu-debian-fedora-centos/
+
+Basically you have to
+
+Download the release you want. In my case
+wget http://www.python.org/ftp/python/3.3.1/Python-3.3.1.tgz
+Extract the compressed files and switch the directory
+gunzip Python-3.3.1.tgz
+tar xf Python-3.3.1.tar
+cd Python-3.3.1
+Configure, compile, and install
+sudo ./configure --prefix=/opt/python3
+sudo make
+sudo make install
+Add python3 to your path
+export PATH=$PATH:/opt/python3/bin
+Install easy_install-3.3
+I ran into some problems related to a missing “zlib” errors. I reinstalled zlib from source, then reconfigured and reinstalled Python 3.3.1. Once that worked, I was able to install and use easy_install-3.3 for module management.
+
+wget http://pypi.python.org/packages/source/d/distribute/distribute-0.6.39.tar.gz
+tar xf distribute-0.6.39.tar.gz
+cd distribute-0.6.39
+sudo python3 setup.py install
+
+Tags: aws, ec2, python, twittergoggles
