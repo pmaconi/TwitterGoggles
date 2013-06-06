@@ -72,9 +72,10 @@ def addTweet(conn, job_id, tweet) :
 	cursor = conn.cursor()
 
 	prefix = "INSERT INTO tweet (tweet_id_str, job_id, created_at, text, from_user, from_user_id_str, " \
-		"from_user_name, from_user_fullname, from_user_followers, from_user_following, " \
-		"from_user_favorites, from_user_tweets, to_user, to_user_id_str, to_user_name, source, iso_language"
-	suffix = ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
+		"from_user_name, from_user_fullname, from_user_followers, from_user_following, from_user_favorites, " \
+		" from_user_tweets, from_user_timezone, to_user, " \
+		"to_user_id_str, to_user_name, source, iso_language"
+	suffix = ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
 	values = [
 		tweet["id_str"],
 		job_id,
@@ -88,6 +89,7 @@ def addTweet(conn, job_id, tweet) :
 		tweet["user"]["friends_count"],
 		tweet["user"]["favourites_count"],
 		tweet["user"]["statuses_count"],
+		tweet["user"]["time_zone"],
 		tweet["in_reply_to_user_id"],
 		tweet["in_reply_to_user_id_str"],
 		tweet["in_reply_to_screen_name"],

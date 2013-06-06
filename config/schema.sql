@@ -101,6 +101,7 @@ CREATE TABLE `tweet` (
   `from_user_following` int NOT NULL,
   `from_user_favorites` int NOT NULL,
   `from_user_tweets` int NOT NULL,
+  `from_user_timezone` varchar(45),
   `to_user` varchar(45) DEFAULT NULL,
   `to_user_id_str` varchar(20) DEFAULT NULL,
   `to_user_name` varchar(45) DEFAULT NULL,
