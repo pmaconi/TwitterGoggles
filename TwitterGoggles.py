@@ -8,7 +8,10 @@ from requests_oauthlib import OAuth1
 # Print strings in verbose mode
 def verbose(info) :
 	if args.verbose:
-		print(info)
+		printUTF8(info)
+
+def printUTF8(info) :
+	print(info.encode('ascii', 'replace').decode())
 
 # Connect to MySQL using config entries
 def connect() :
@@ -118,8 +121,7 @@ def addTweet(conn, job_id, tweet) :
 	except sql.Error as err :
 		verbose("")
 		verbose(">>>> Warning: Could not add Tweet: " + str(err))
-		# Convert unprintable utf8 strings to ascii bytes and decode back to a string
-		verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+		verbose("     Query: " + cursor.statement)
 		return False
 	finally :
 		cursor.close()
@@ -146,8 +148,7 @@ def addHashtags(conn, job_id, tweet) :
 		except sql.Error as err :
 			verbose("")
 			verbose(">>>> Warning: Could not add Hashtag: " + str(err))
-			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
-			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+			verbose("     Query: " + cursor.statement)
 	
 	cursor.close()
 
@@ -175,8 +176,7 @@ def addUserMentions(conn, job_id, tweet) :
 		except sql.Error as err :
 			verbpse("")
 			verbose(">>>> Warning: Could not add User Mention: " + str(err))
-			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
-			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+			verbose("     Query: " + cursor.statement)
 	
 	cursor.close
 
@@ -204,8 +204,7 @@ def addURLS(conn, job_id, tweet) :
 		except sql.Error as err :
 			verbose("")
 			verbose(">>>> Warning: Could not add URL: " + str(err))
-			# Convert unprintable utf8 strings to ascii bytes and decode back to a string
-			verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+			verbose("     Query: " + cursor.statement)
 	
 	cursor.close()
 
@@ -227,8 +226,7 @@ def updateSinceId(conn, job_id, max_id_str, total_results) :
 		conn.commit()
 	except sql.Error as err :
 		verbose(">>>> Warning: Could not update job: " + str(err))
-		# Convert unprintable utf8 strings to ascii bytes and decode back to a string
-		verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+		verbose("     Query: " + cursor.statement)
 	finally:
 		cursor.close()
 
@@ -252,8 +250,7 @@ def addHistory(conn, job_id, oauth_id, success, total_results = 0) :
 		conn.commit()
 	except sql.Error as err :
 		verbose(">>>> Warning: Could not add history entry: " + str(err))
-		# Convert unprintable utf8 strings to ascii bytes and decode back to a string
-		verbose("     Query: " + cursor.statement.encode("ascii", "ignore").decode())
+		verbose("     Query: " + cursor.statement)
 	finally:
 		cursor.close()
 
@@ -304,7 +301,7 @@ if __name__ == '__main__' :
 				verbose("Throttled frequency for job: " + str(job_id))
 				continue
 			
-			print("+++++ Job ID:", job_id, "\tDescription:", description, "\tQuery:", query, "\tOAuth ID:", oauth_id)
+			printUTF8("+++++ Job ID:" + str(job_id) + "\tDescription:" + description + "\tQuery:" + query + "\tOAuth ID:" + str(oauth_id))
 
 			oauth = OAuth1(client_key=consumer_key,
 						client_secret=consumer_secret,
