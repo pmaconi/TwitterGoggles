@@ -48,6 +48,9 @@ def getJobs(conn) :
 
 # Append default values to the job's query string
 def getFullQuery(query, since_id) :
+	if (not query.startswith("q=")) :
+		query = "q=" + query
+
 	return "?" + query + "&since_id=" + since_id + "&count=100&include_entities=1"
 
 # Query Twitter's Search 1.1 API
