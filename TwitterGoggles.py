@@ -195,7 +195,7 @@ def addURLS(conn, job_id, tweet) :
 			tweet["id_str"], 
 			job_id, 
 			url["url"], 
-			url["expanded_url"] if "expanded_url" in url else "", 
+			expandURL(url["expanded_url"]) if "expanded_url" in url else "", 
 			url["display_url"] if "display_url" in url else "", 
 			url["indices"][0],
 			url["indices"][1] 
@@ -210,6 +210,16 @@ def addURLS(conn, job_id, tweet) :
 			verbose("     Query: " + cursor.statement)
 	
 	cursor.close()
+
+def expandURL(url) :
+	headers = {'User-agent': 'TwitterGoggles v1.0'}
+	r = requests.get("http://api.longurl.org/v2/expand?format=json&url=" + url, headers = headers)	
+	response = json.loads(r.text)
+
+	if "long-url" in response :
+		return response["long-url"]
+	else :
+		return url
 
 # Update the stored job's since_id to prevent retrieving previously processed tweets
 def updateSinceId(conn, job_id, max_id_str, total_results) :
