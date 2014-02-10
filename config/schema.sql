@@ -56,7 +56,7 @@ CREATE TABLE `job` (
   `job_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `state` int(11) NOT NULL DEFAULT '0',
   `zombie_head` int(10) DEFAULT NULL,
-  `since_id_str` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0',
+  `since_id_str` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0',
   `query` text NOT NULL,
   `description` varchar(255) DEFAULT 'I am a lazy piece of shit and I did not enter a description',
   `last_count` int(10) unsigned zerofill DEFAULT NULL,
