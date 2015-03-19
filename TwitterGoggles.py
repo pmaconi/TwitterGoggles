@@ -276,11 +276,16 @@ if __name__ == '__main__' :
 	parser.add_argument('-v','--verbose', default=False, action="store_true", help="Show additional logs")
 	parser.add_argument('-d','--delay', type=int, default=0, help="Delay execution by DELAY seconds")
 	parser.add_argument('-c','--cache', default=False, help="Store the JSON?")
+	parser.add_argument('-s','--settings', help="Full path to settings.cfg")
 	args = parser.parse_args()
 	
 	config = configparser.ConfigParser()
-	script_dir = os.path.dirname(__file__)
-	config_file = os.path.join(script_dir, 'config/settings.cfg')
+	# let user specify a settings file to use
+	if args.settings :
+	  config_file = os.path.abspath(args.settings)  	
+	else:
+	  script_dir = os.path.dirname(__file__)
+	  config_file = os.path.join(script_dir, 'config/settings.cfg')
 	config.read(config_file)
 	
 	# Display startup info
