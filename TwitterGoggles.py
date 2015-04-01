@@ -73,10 +73,10 @@ def addTweet(conn, job_id, tweet) :
 	cursor = conn.cursor()
 	
 	prefix = "INSERT INTO tweet (tweet_id_str, job_id, created_at, text, from_user, from_user_id_str, " \
-		"from_user_name, from_user_fullname, from_user_followers, from_user_following, from_user_favorites, " \
+		"from_user_name, from_user_fullname, from_user_created_at, from_user_followers, from_user_following, from_user_favorites, " \
 		" from_user_tweets, from_user_timezone, to_user, " \
 		"to_user_id_str, to_user_name, source, iso_language"
-	suffix = ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
+	suffix = ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
 	values = [
 		tweet["id_str"],
 		job_id,
@@ -86,6 +86,8 @@ def addTweet(conn, job_id, tweet) :
 		tweet["user"]["id_str"],
 		tweet["user"]["screen_name"],
 		tweet["user"]["name"],
+		datetime.strptime(tweet["user"]["created_at"], '%a %b %d %H:%M:%S +0000 %Y').strftime('%Y-%m-%d %H:%M:%S'),
+		# tweet["user"]["created_at"],
 		tweet["user"]["followers_count"],
 		tweet["user"]["friends_count"],
 		tweet["user"]["favourites_count"],
