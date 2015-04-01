@@ -4,6 +4,10 @@ TwitterGoggles
 A Python 3.3 adaptation of the PHP program "Twitter Zombie", originally developed for the Twitter Search API 
 version 1.0. This new project is built for the Twitter Search API version 1.1.
 
+Version Notes
+-------------
+libbyh/TwitterGoggles is now on version 2.0. It is no longer compatible with [pmaconi/TwitterGoggles](http://github.com/pmaconi/TwitterGoggles) because of changes to the schema and the data stored (this version captures account creation date). If you update your version of [TwitterGoggles.py](TwitterGoggles.py), you must also use the updated database schema. You can update your current schema using [config/update_schema_v2.sql](config/update_schema_v2.sql).
+
 Recent Changes
 ------------
 - added account created_at date to db and script so we know how old these Twitter accounts are
