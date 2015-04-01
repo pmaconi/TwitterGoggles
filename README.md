@@ -6,8 +6,10 @@ version 1.0. This new project is built for the Twitter Search API version 1.1.
 
 Recent Changes
 ------------
+- added account created_at date to db and script so we know how old these Twitter accounts are
+- additional indexes in [config/schema.sql](schema.sql) to speed up queries
 - allow user to choose a settings file - use case: run a single TwitterGoggles codebase that populates more than one database
-- allow user to cache/store JSON returned before parsing into MySQL - use case: you just really love keeping "raw" data
+- allow user to cache/store JSON returned before parsing into MySQL - use case: you really love keeping "raw" data or you want to parse it differently later
 - see related project for analyzing data collected/parsed by TwitterGoggles: [Analyze Tweets from TG](https://github.com/casmlab/analyze-tweets-from-tg)
 
 Dependencies
