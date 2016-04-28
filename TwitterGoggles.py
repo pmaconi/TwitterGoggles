@@ -192,7 +192,7 @@ def addURLS(conn, job_id, tweet) :
 			tweet["id_str"],
 			job_id,
 			url["url"],
-			expandURL(url["expanded_url"]) if "expanded_url" in url else "",
+			url["expanded_url"] if "expanded_url" in url else "",
 			url["display_url"] if "display_url" in url else "",
 			url["indices"][0],
 			url["indices"][1]
