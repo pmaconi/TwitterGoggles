@@ -174,7 +174,7 @@ def addUserMentions(conn, job_id, tweet) :
 			cursor.execute(query, values)
 			conn.commit()
 		except sql.Error as err :
-			verbpse("")
+			verbose("")
 			verbose(">>>> Warning: Could not add User Mention: " + str(err))
 			verbose("     Query: " + cursor.statement)
 	
@@ -332,8 +332,9 @@ if __name__ == '__main__' :
 						client_secret=consumer_secret,
 						resource_owner_key=access_token,
 						resource_owner_secret=access_token_secret)
-			
-			since_id_str = since_id_str.decode('utf8')
+		       
+			# since_id_str = str(since_id_str)	
+			# since_id_str = since_id_str.decode('utf8')
 			
 			# Get the Tweets
 			results = search(getFullQuery(query, since_id_str), oauth)
