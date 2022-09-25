@@ -144,6 +144,12 @@ def addTweet(conn, job_id, tweet) :
 # Add hashtag entities to the DB
 def addHashtags(conn, job_id, tweet) :
 	cursor = conn.cursor()
+
+	if hashtag["text"] is not None: 
+		hashtag["text"].encode('utf-8').decode('utf-8')
+		print('endcode decode hashtag')
+	else: 
+		tweet["text"]="empty hashtag"
 	
 	query = "INSERT INTO hashtag (tweet_id, job_id, text, index_start, index_end) " \
 		"VALUES(%s, %s, %s, %s, %s)"
@@ -170,6 +176,18 @@ def addHashtags(conn, job_id, tweet) :
 # Add user mention entities to the DB
 def addUserMentions(conn, job_id, tweet) :
 	cursor = conn.cursor()
+
+	if mention["name"] is not None: 
+		mention["name"].encode('utf-8').decode('utf-8')
+		print('endcode decode mention')
+	else: 
+		tweet["name"]="empty tweet mention name."
+
+	if mention["screen_name"] is not None: 
+		mention["screen_name"].encode('utf-8').decode('utf-8')
+		print('endcode decode screen_mention')
+	else: 
+		tweet["screen_name"]="empty tweet mention screen name"
 	
 	query = "INSERT INTO mention (tweet_id, job_id, screen_name, name, id_str, index_start, index_end) " \
 		"VALUES(%s, %s, %s, %s, %s, %s, %s)"
