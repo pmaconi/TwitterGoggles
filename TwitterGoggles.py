@@ -22,7 +22,7 @@ def connect(config) :
 		'port' : int(config["MySQL"]["port"]),
 		'database' : config["MySQL"]['database'],
 		'charset' : 'utf8',
-		'collation' : 'utf8_general_ci',
+		'collation' : 'utf8mb4_unicode_ci',
 		'buffered' : True
 	}
 	
