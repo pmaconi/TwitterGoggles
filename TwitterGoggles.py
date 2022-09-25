@@ -81,7 +81,9 @@ def addTweet(conn, job_id, tweet) :
 		tweet["id_str"],
 		job_id,
 		datetime.strptime(tweet["created_at"], '%a %b %d %H:%M:%S +0000 %Y').strftime('%Y-%m-%d %H:%M:%S'),
-		tweet["text"].encode('utf-8').decode('utf-8'),
+		if tweet["text"] is not None: 
+			tweet["text"].encode('utf-8').decode('utf-8')
+		else: "",
 		tweet["user"]["id"],
 		tweet["user"]["id_str"],
 		tweet["user"]["screen_name"].encode('utf-8').decode('utf-8'),
