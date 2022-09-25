@@ -73,6 +73,7 @@ def addTweet(conn, job_id, tweet) :
 	cursor = conn.cursor()
 	if tweet["text"] is not None: 
 		tweet["text"].encode('utf-8').decode('utf-8')
+		print('endcode decode')
 	else: 
 		tweet["text"]="empty tweet"
 
