@@ -76,15 +76,15 @@ def addTweet(conn, job_id, tweet) :
 	else: 
 		tweet["text"]="empty tweet"
 
-	if tweet["name"] is not None: 
-		tweet["name"].encode('utf-8').decode('utf-8')
+	if tweet["user"]["name"] is not None: 
+		tweet["user"]["name"].encode('utf-8').decode('utf-8')
 	else: 
-		tweet["name"]="empty name"
+		tweet["user"]["name"]="empty name"
 
-	if tweet["screen_name"] is not None: 
-		tweet["screen_name"].encode('utf-8').decode('utf-8')
+	if tweet["user"]["screen_name"] is not None: 
+		tweet["user"]["screen_name"].encode('utf-8').decode('utf-8')
 	else: 
-		tweet["screen_name"]="empty screen_name"
+		tweet["user"]["screen_name"]="empty screen_name"
 
 	prefix = "INSERT INTO tweet (tweet_id_str, job_id, created_at, text, from_user, from_user_id_str, " \
 		"from_user_name, from_user_fullname, from_user_created_at, from_user_followers, from_user_following, from_user_favorites, " \
