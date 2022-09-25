@@ -21,7 +21,7 @@ def connect(config) :
 		'host' : config["MySQL"]["host"],
 		'port' : int(config["MySQL"]["port"]),
 		'database' : config["MySQL"]['database'],
-		'charset' : 'utf8',
+		'charset' : 'utf8mb4',
 		'collation' : 'utf8mb4_unicode_ci',
 		'buffered' : True
 	}
