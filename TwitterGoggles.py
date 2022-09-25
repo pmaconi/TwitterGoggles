@@ -417,6 +417,8 @@ if __name__ == '__main__' :
 			addHistory(conn, job_id, oauth_id, True, total_results)
 	
 	except sql.Error as err :
+		updateSinceId(conn, job_id, max_id_str, total_results)
+		addHistory(conn, job_id, oauth_id, True, total_results)
 		print(err)
 		print("Terminating.")
 		sys.exit(1)
