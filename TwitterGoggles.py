@@ -71,7 +71,11 @@ def search(query, oauth) :
 # Add a tweet to the DB
 def addTweet(conn, job_id, tweet) :
 	cursor = conn.cursor()
-	
+	if tweet["text"] is not None: 
+		tweet["text"].encode('utf-8').decode('utf-8')
+	else: 
+		tweet["text"]="empty tweet"
+		
 	prefix = "INSERT INTO tweet (tweet_id_str, job_id, created_at, text, from_user, from_user_id_str, " \
 		"from_user_name, from_user_fullname, from_user_created_at, from_user_followers, from_user_following, from_user_favorites, " \
 		" from_user_tweets, from_user_timezone, to_user, " \
@@ -81,9 +85,7 @@ def addTweet(conn, job_id, tweet) :
 		tweet["id_str"],
 		job_id,
 		datetime.strptime(tweet["created_at"], '%a %b %d %H:%M:%S +0000 %Y').strftime('%Y-%m-%d %H:%M:%S'),
-		if tweet["text"] is not None: 
-			tweet["text"].encode('utf-8').decode('utf-8')
-		else: "",
+		tweet["text"],
 		tweet["user"]["id"],
 		tweet["user"]["id_str"],
 		tweet["user"]["screen_name"].encode('utf-8').decode('utf-8'),
