@@ -75,17 +75,17 @@ def addTweet(conn, job_id, tweet) :
 		tweet["text"].encode('utf-8').decode('utf-8')
 		print('endcode decode')
 	else: 
-		tweet["text"]="empty tweet"
+		tweet["text"]="empty tweet".encode('utf-8').decode('utf-8')
 
 	if tweet["user"]["name"] is not None: 
 		tweet["user"]["name"].encode('utf-8').decode('utf-8')
 	else: 
-		tweet["user"]["name"]="empty name"
+		tweet["user"]["name"]="empty name".encode('utf-8').decode('utf-8')
 
 	if tweet["user"]["screen_name"] is not None: 
 		tweet["user"]["screen_name"].encode('utf-8').decode('utf-8')
 	else: 
-		tweet["user"]["screen_name"]="empty screen_name"
+		tweet["user"]["screen_name"]="empty screen_name".encode('utf-8').decode('utf-8')
 
 	prefix = "INSERT INTO tweet (tweet_id_str, job_id, created_at, text, from_user, from_user_id_str, " \
 		"from_user_name, from_user_fullname, from_user_created_at, from_user_followers, from_user_following, from_user_favorites, " \
@@ -145,16 +145,17 @@ def addTweet(conn, job_id, tweet) :
 def addHashtags(conn, job_id, tweet) :
 	cursor = conn.cursor()
 
-	if hashtag["text"] is not None: 
-		hashtag["text"].encode('utf-8').decode('utf-8')
-		print('endcode decode hashtag')
-	else: 
-		tweet["text"]="empty hashtag"
-	
 	query = "INSERT INTO hashtag (tweet_id, job_id, text, index_start, index_end) " \
 		"VALUES(%s, %s, %s, %s, %s)"
 	
 	for hashtag in tweet['entities']['hashtags'] :
+
+		if hashtag["text"] is not None: 
+			hashtag["text"].encode('utf-8').decode('utf-8')
+			print('endcode decode hashtag')
+		else: 
+			tweet["text"]="empty hashtag"
+		
 		values = [
 			tweet["id_str"],
 			job_id,
@@ -177,22 +178,22 @@ def addHashtags(conn, job_id, tweet) :
 def addUserMentions(conn, job_id, tweet) :
 	cursor = conn.cursor()
 
-	if mention["name"] is not None: 
-		mention["name"].encode('utf-8').decode('utf-8')
-		print('endcode decode mention')
-	else: 
-		tweet["name"]="empty tweet mention name."
-
-	if mention["screen_name"] is not None: 
-		mention["screen_name"].encode('utf-8').decode('utf-8')
-		print('endcode decode screen_mention')
-	else: 
-		tweet["screen_name"]="empty tweet mention screen name"
-	
 	query = "INSERT INTO mention (tweet_id, job_id, screen_name, name, id_str, index_start, index_end) " \
 		"VALUES(%s, %s, %s, %s, %s, %s, %s)"
 	
 	for mention in tweet['entities']['user_mentions'] :
+		if mention["name"] is not None: 
+			mention["name"].encode('utf-8').decode('utf-8')
+			print('endcode decode mention')
+		else: 
+			tweet["name"]="empty tweet mention name."
+
+		if mention["screen_name"] is not None: 
+			mention["screen_name"].encode('utf-8').decode('utf-8')
+			print('endcode decode screen_mention')
+		else: 
+			tweet["screen_name"]="empty tweet mention screen name"
+
 		values = [
 			tweet["id_str"],
 			job_id,
