@@ -21,8 +21,8 @@ def connect(config) :
 		'host' : config["MySQL"]["host"],
 		'port' : int(config["MySQL"]["port"]),
 		'database' : config["MySQL"]['database'],
-		'charset' : 'utf8',
-		'collation' : 'utf8_general_ci',
+		'charset' : 'utf8mb4',
+		'collation' : 'utf8mb4_unicode_ci',
 		'buffered' : True
 	}
 	
@@ -71,7 +71,22 @@ def search(query, oauth) :
 # Add a tweet to the DB
 def addTweet(conn, job_id, tweet) :
 	cursor = conn.cursor()
-	
+	if tweet["text"] is not None: 
+		tweet["text"].encode('utf-8').decode('utf-8')
+		print('endcode decode')
+	else: 
+		tweet["text"]="empty tweet".encode('utf-8').decode('utf-8')
+
+	if tweet["user"]["name"] is not None: 
+		tweet["user"]["name"].encode('utf-8').decode('utf-8')
+	else: 
+		tweet["user"]["name"]="empty name".encode('utf-8').decode('utf-8')
+
+	if tweet["user"]["screen_name"] is not None: 
+		tweet["user"]["screen_name"].encode('utf-8').decode('utf-8')
+	else: 
+		tweet["user"]["screen_name"]="empty screen_name".encode('utf-8').decode('utf-8')
+
 	prefix = "INSERT INTO tweet (tweet_id_str, job_id, created_at, text, from_user, from_user_id_str, " \
 		"from_user_name, from_user_fullname, from_user_created_at, from_user_followers, from_user_following, from_user_favorites, " \
 		" from_user_tweets, from_user_timezone, to_user, " \
@@ -84,8 +99,8 @@ def addTweet(conn, job_id, tweet) :
 		tweet["text"],
 		tweet["user"]["id"],
 		tweet["user"]["id_str"],
-		tweet["user"]["screen_name"],
-		tweet["user"]["name"],
+		tweet["user"]["screen_name"].encode('utf-8').decode('utf-8'),
+		tweet["user"]["name"].encode('utf-8').decode('utf-8'),
 		datetime.strptime(tweet["user"]["created_at"], '%a %b %d %H:%M:%S +0000 %Y').strftime('%Y-%m-%d %H:%M:%S'),
 		# tweet["user"]["created_at"],
 		tweet["user"]["followers_count"],
@@ -129,11 +144,18 @@ def addTweet(conn, job_id, tweet) :
 # Add hashtag entities to the DB
 def addHashtags(conn, job_id, tweet) :
 	cursor = conn.cursor()
-	
+
 	query = "INSERT INTO hashtag (tweet_id, job_id, text, index_start, index_end) " \
 		"VALUES(%s, %s, %s, %s, %s)"
 	
 	for hashtag in tweet['entities']['hashtags'] :
+
+		if hashtag["text"] is not None: 
+			hashtag["text"].encode('utf-8').decode('utf-8')
+			print('endcode decode hashtag')
+		else: 
+			tweet["text"]="empty hashtag"
+		
 		values = [
 			tweet["id_str"],
 			job_id,
@@ -155,11 +177,23 @@ def addHashtags(conn, job_id, tweet) :
 # Add user mention entities to the DB
 def addUserMentions(conn, job_id, tweet) :
 	cursor = conn.cursor()
-	
+
 	query = "INSERT INTO mention (tweet_id, job_id, screen_name, name, id_str, index_start, index_end) " \
 		"VALUES(%s, %s, %s, %s, %s, %s, %s)"
 	
 	for mention in tweet['entities']['user_mentions'] :
+		if mention["name"] is not None: 
+			mention["name"].encode('utf-8').decode('utf-8')
+			print('endcode decode mention')
+		else: 
+			tweet["name"]="empty tweet mention name."
+
+		if mention["screen_name"] is not None: 
+			mention["screen_name"].encode('utf-8').decode('utf-8')
+			print('endcode decode screen_mention')
+		else: 
+			tweet["screen_name"]="empty tweet mention screen name"
+
 		values = [
 			tweet["id_str"],
 			job_id,
@@ -417,6 +451,8 @@ if __name__ == '__main__' :
 			addHistory(conn, job_id, oauth_id, True, total_results)
 	
 	except sql.Error as err :
+		updateSinceId(conn, job_id, max_id_str, total_results)
+		addHistory(conn, job_id, oauth_id, True, total_results)
 		print(err)
 		print("Terminating.")
 		sys.exit(1)
